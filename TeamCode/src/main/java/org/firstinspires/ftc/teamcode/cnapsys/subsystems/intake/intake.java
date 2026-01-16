@@ -25,17 +25,22 @@ public class intake implements subsystem {
     }
 
     public void update(long deltaTime) {
+        //set these again so they can be configed in real time, maybe should be commented out for efficiency if we find the perfect values
         targetRPM = intakeConfig.RPM;
         pidf.setParams(intakeConfig.kP, intakeConfig.kI, intakeConfig.kD, intakeConfig.kF);
 
+        //calculate current rpm based on the last position and current position, diving by deltatime
         double deltaTicks = motor.getCurrentPosition() - lastPosition;
         lastPosition = motor.getCurrentPosition();
-        double ticksPerSecond = deltaTicks / deltaTime;
+        //deltatime is in ms so we need to multiply by 1000
+        double ticksPerSecond = (deltaTicks / deltaTime) * 1000.0;
+        //580.4 is the constant for the specific motor, maybe needs calibrating if it doesnt work
         currentRPM = (int)((ticksPerSecond * 60) / 580.4);
 
         int error = targetRPM - currentRPM;
         double power = pidf.update((int)error);
 
+        // set the power based on the error between current and target rpm
         motor.setPower(power);
     }
 }
