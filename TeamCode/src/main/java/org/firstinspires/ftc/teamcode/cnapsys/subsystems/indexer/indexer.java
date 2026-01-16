@@ -37,6 +37,10 @@ public class indexer implements subsystem {
 
     }
 
+    public int getNumberOfFilledSlots() {
+        return slots[0] + slots[1] + slots[2];
+    }
+
     @Override
     public boolean isBusy() {
         return false;
