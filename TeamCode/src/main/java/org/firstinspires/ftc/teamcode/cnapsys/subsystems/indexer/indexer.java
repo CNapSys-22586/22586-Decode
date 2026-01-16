@@ -11,14 +11,14 @@ public class indexer implements subsystem {
     private Servo servo;
     private AnalogInput servoFeedback;
 
-    private int rotation;
+    private double rotation;
     private int[] slots;
 
     public indexer(Servo servo, AnalogInput servoFeedback) {
         this.servo = servo;
         this.servoFeedback = servoFeedback;
         slots = new int[]{0, 0, 0};
-        rotation = 0;
+        rotation = getServoPhysicalPos();
     }
 
     double getServoPhysicalPos() {
