@@ -119,6 +119,6 @@ public class indexer implements subsystem {
 
     @Override
     public void update(long deltaTime) {
-        
+
     }
 }

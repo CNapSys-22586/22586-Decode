@@ -13,6 +13,8 @@ public class indexerConfig {
     public static int[] green = {0, 0, 0, 0, 0, 0, 0, 0};
     @Sorter(sort = 3)
     public static int[] purple = {0, 0, 0, 0, 0, 0, 0, 0};
+    @Sorter(sort = 4)
     public static double[] intakeRotations = {0, 120, 240};
+    @Sorter(sort = 5)
     public static double[] outakeRotations = {180, 300, 60};
 }
