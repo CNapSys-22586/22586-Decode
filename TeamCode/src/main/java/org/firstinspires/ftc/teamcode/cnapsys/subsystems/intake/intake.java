@@ -11,12 +11,22 @@ public class intake implements subsystem {
     final double CPR = 580.4;
     private int lastPosition;
     private PIDF pidf;
+    boolean on;
 
     public intake(DcMotor motor) {
         this.motor = motor;
         this.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lastPosition = motor.getCurrentPosition();
         pidf = new PIDF(intakeConfig.kP, intakeConfig.kI, intakeConfig.kD, intakeConfig.kF);
+        on = true;
+    }
+
+    public void toggleOn() {
+        on = true;
+    }
+
+    public void toggleOff() {
+        on = false;
     }
 
     @Override
@@ -27,6 +37,11 @@ public class intake implements subsystem {
 
     @Override
     public void update(long deltaTime) {
+        if (!on) {
+            motor.setPower(0);
+            return;
+        }
+
         //set these again so they can be configed in real time, maybe should be commented out for efficiency if we find the perfect values
         targetRPM = intakeConfig.RPM;
         pidf.setParams(intakeConfig.kP, intakeConfig.kI, intakeConfig.kD, intakeConfig.kF);
