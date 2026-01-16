@@ -19,11 +19,13 @@ public class intake implements subsystem {
         pidf = new PIDF(intakeConfig.kP, intakeConfig.kI, intakeConfig.kD, intakeConfig.kF);
     }
 
+    @Override
     public boolean isBusy() {
         int diff = Math.abs(targetRPM - currentRPM);
         return diff <= intakeConfig.threshold;
     }
 
+    @Override
     public void update(long deltaTime) {
         //set these again so they can be configed in real time, maybe should be commented out for efficiency if we find the perfect values
         targetRPM = intakeConfig.RPM;
