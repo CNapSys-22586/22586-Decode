@@ -27,7 +27,7 @@ public class pusher implements subsystem {
         lastStateChange = 0;
     }
 
-    double getServoPhysicalPos() {
+    private double getServoPhysicalPos() {
         double voltage = servoFeedback.getVoltage();
         // Convert voltage to a 0.0 - 1.0 position range
         // (You'll need to calibrate the 0.2 and 3.1 values for your specific servo)
