@@ -19,12 +19,6 @@ public class colorSensor {
         sensor.setGain(gain);
     }
 
-    double colorDistanceSq(RGB rgb1, RGB rgb2) {
-        return Math.pow(rgb1.R - rgb2.R, 2)
-                + Math.pow(rgb1.G - rgb2.G, 2)
-                + Math.pow(rgb1.B - rgb2.B, 2);
-    }
-
     public boolean isObjectDetected() {
         double distance = sensor.getDistance(DistanceUnit.CM);
         return distance <= colorSensorConfig.distanceThreshold;
