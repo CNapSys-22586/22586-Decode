@@ -1,124 +1,135 @@
 package org.firstinspires.ftc.teamcode.cnapsys.subsystems.indexer;
 
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.cnapsys.core.subsystem;
-import org.jetbrains.annotations.ApiStatus;
-
-enum Colors {
-    NONE,
-    GREEN,
-    PURPLE
-}
+import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Colors;
+import org.firstinspires.ftc.teamcode.cnapsys.core.utils.colorSensor;
+import org.firstinspires.ftc.teamcode.cnapsys.core.interfaces.subsystem;
 
 public class indexer implements subsystem {
-    private Servo servo;
-    private AnalogInput servoFeedback;
-    private ColorSensor colorSensor;
-    // slot 0 is at 0 degrees, 1 is at 120 degrees, 2 is at 240
-    private Colors[] slots;
+    private final Servo servo;
+    private final AnalogInput servoFeedback;
+    private final colorSensor colorSensor;
+    private Colors[] slots = {Colors.UNKNOWN, Colors.UNKNOWN, Colors.UNKNOWN};
+    private int selected, state = -1;
+    private double gotoPos = indexerConfig.intakeRotations[0], lastDeltaTime;
 
-
-    public indexer(Servo servo, AnalogInput servoFeedback, ColorSensor colorSensor) {
+    public indexer(Servo servo, AnalogInput servoFeedback, colorSensor colorSensor) {
         this.servo = servo;
         this.servoFeedback = servoFeedback;
+        slots = new Colors[]{Colors.UNKNOWN, Colors.UNKNOWN, Colors.UNKNOWN};
         this.colorSensor = colorSensor;
-        slots = new Colors[]{Colors.NONE, Colors.NONE, Colors.NONE};
+    }
+
+    public void selectNone() {
+        for (int i = 0; i < 3; ++i) {
+            if (slots[i] == Colors.UNKNOWN) {
+                gotoPos = indexerConfig.intakeRotations[i];
+                selected = i;
+                break;
+            }
+        }
+    }
+
+    public boolean selectGreen() {
+        for (int i = 0; i < 3; ++i) {
+            if (slots[i] == Colors.GREEN) {
+                gotoPos = indexerConfig.outakeRotations[i];
+                selected = i;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean selectPurple() {
+        for (int i = 0; i < 3; ++i) {
+            if (slots[i] == Colors.PURPLE) {
+                gotoPos = indexerConfig.outakeRotations[i];
+                selected = i;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int getSelected() {
+        return selected;
+    }
+
+    public void fillSlot(int slotId, Colors color) {
+        slots[slotId] = color;
+    }
+    public void fillSlot(Colors color0, Colors color1, Colors color2) {
+        slots = new Colors[] {color0, color1, color2};
+    }
+    public void emptySlot(int slotId) {
+        slots[slotId] = Colors.UNKNOWN;
+    }
+
+    public boolean isFull() {
+        for (Colors i : slots) {
+            if (i == Colors.UNKNOWN) return false;
+        }
+        return true;
+    }
+
+    public boolean isEmpty() {
+        for (Colors i : slots) {
+            if (i != Colors.UNKNOWN) return false;
+        }
+        return true;
     }
 
     private double getServoPhysicalPos() {
         double voltage = servoFeedback.getVoltage();
-        // Convert voltage to a 0.0 - 1.0 position range
-        // (You'll need to calibrate the 0.2 and 3.1 values for your specific servo)
-        return Range.scale(voltage, indexerConfig.voltageRangeMin, indexerConfig.voltageRangeMax, 0.0, 1.0);
+        return (voltage / indexerConfig.AVG_VOLTAGE);
     }
 
-    public int getNumberOfFilledSlots() {
-        int nr = 0;
-        for (Colors i : slots) {
-            if (i != Colors.NONE) nr++;
-        }
-        return nr;
+    public void setAutomatic () {
+        state = -1;
     }
 
-    public void selectNone() {
-        double rotation = getServoPhysicalPos() * 360.0;
-
-        double closest = 360.0;
-        int closestIndex = -1;
-        for (int i = 0; i < 3; ++i) {
-            if (slots[i] == Colors.NONE) {
-                double calculation =  Math.abs(rotation - indexerConfig.intakeRotations[i]);
-                if (closest < calculation) {
-                    closest = calculation;
-                    closestIndex = i;
-                }
-            }
-        }
-
-        if (closestIndex != -1) {
-            servo.setPosition(indexerConfig.intakeRotations[closestIndex] / 360.0);
-        }
-    }
-
-    public void selectPurple() {
-        double rotation = getServoPhysicalPos() * 360.0;
-
-        double closest = 360.0;
-        int closestIndex = -1;
-        for (int i = 0; i < 3; ++i) {
-            if (slots[i] == Colors.PURPLE) {
-                double calculation =  Math.abs(rotation - indexerConfig.outakeRotations[i]);
-                if (closest < calculation) {
-                    closest = calculation;
-                    closestIndex = i;
-                }
-            }
-        }
-
-        if (closestIndex != -1) {
-            servo.setPosition(indexerConfig.outakeRotations[closestIndex] / 360.0);
-        }
-    }
-
-    public void selectGreen() {
-        double rotation = getServoPhysicalPos() * 360.0;
-
-        double closest = 360.0;
-        int closestIndex = -1;
-        for (int i = 0; i < 3; ++i) {
-            if (slots[i] == Colors.GREEN) {
-                double calculation =  Math.abs(rotation - indexerConfig.outakeRotations[i]);
-                if (closest < calculation) {
-                    closest = calculation;
-                    closestIndex = i;
-                }
-            }
-        }
-
-        if (closestIndex != -1) {
-            servo.setPosition(indexerConfig.outakeRotations[closestIndex] / 360.0);
-        }
-    }
-
-    public boolean isFull() {
-        boolean full = true;
-        for (Colors i : slots) {
-            if (i == Colors.NONE) full = false;
-        }
-        return full;
+    public void setManual () {
+        state = 0;
     }
 
     @Override
     public boolean isBusy() {
-        return false;
+        return (Math.abs(getServoPhysicalPos() - gotoPos) > indexerConfig.threshold);
     }
 
     @Override
-    public void update(long deltaTime) {
+    public void update(double deltaTime, TelemetryManager tm) {
+        servo.setPosition(gotoPos);
+        switch (state) {
+            case -1:
+                if (isFull()) gotoPos = indexerConfig.outakeRotations[0];
+                else selectNone();
+                state = 1;
+                lastDeltaTime = deltaTime;
+                break;
+            case 0:
+                break;
+            case 1:
+                if (deltaTime - lastDeltaTime >= indexerConfig.delay && !isBusy() && !colorSensor.isObjectDetected()) {
+                    state = 2;
+                }
+                break;
+            case 2:
+                if (colorSensor.isObjectDetected() && !isFull()) {
+                    fillSlot(selected, colorSensor.getColor());
+                    state = -1;
+                }
+                break;
 
+        }
+        tm.addData("indexer estimated position: ", getServoPhysicalPos());
+        tm.addData("indexer actual position: ", servo.getPosition());
+        tm.addData("is indexer busy: ", isBusy());
+        tm.addData("indexer state: ", state);
+        tm.addData("is obj detected in indexer: ", colorSensor.isObjectDetected());
     }
 }

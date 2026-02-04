@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.cnapsys.core;
+package org.firstinspires.ftc.teamcode.cnapsys.core.utils;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class PIDF {
     private double p, i, d, f;
     private double integralSum = 0;
-    private int lastError = 0;
-    private ElapsedTime et = new ElapsedTime();
+    private double lastError = 0;
+    private final ElapsedTime et = new ElapsedTime();
 
     public PIDF(double P, double I, double D, double F) {
         this.p = P;
@@ -25,7 +25,7 @@ public class PIDF {
         return (x < 0) ? -1 : 1;
     }
 
-    public double update(int error) {
+    public double update(double error) {
         double dt = et.seconds();
         et.reset(); // Reset timer for the next cycle
 
