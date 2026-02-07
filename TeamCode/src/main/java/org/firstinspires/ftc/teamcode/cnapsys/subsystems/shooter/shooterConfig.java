@@ -20,5 +20,5 @@ public class shooterConfig {
     @Sorter(sort=6)
     public static double threshold = 10;
     @Sorter(sort=7)
-    public static ShooterPoint[] table = {new ShooterPoint(30, 1100, 42), new ShooterPoint(60, 1700, 137)};
+    public static ShooterPoint[] table = {new ShooterPoint(30, 1100, 42), new ShooterPoint(60, 1800, 137)};
 }
