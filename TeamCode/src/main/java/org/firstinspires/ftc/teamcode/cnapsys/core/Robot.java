@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class Robot {
     public static Pose defaultPose = new Pose(38, 33, Math.toRadians(90));
-    public Pose shootTarget = new Pose(6, 144, 0);
+    public Pose shootTarget = new Pose(6, 144 - 6, 0);
     public final intake intake;
     public final pusher pusher;
     public final RGBLight indicatorLight;

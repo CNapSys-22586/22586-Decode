@@ -12,13 +12,15 @@ public class indexer implements subsystem {
     private final Servo servo;
     private final AnalogInput servoFeedback;
     private final colorSensor colorSensor;
-    private Colors[] slots = {Colors.UNKNOWN, Colors.UNKNOWN, Colors.UNKNOWN};
+    private static Colors[] slots = {Colors.UNKNOWN, Colors.UNKNOWN, Colors.UNKNOWN};
     private int selected, state = -1;
     private double gotoPos = indexerConfig.intakeRotations[0], lastDeltaTime;
+    private boolean isOutake = true;
 
     public indexer(Servo servo, AnalogInput servoFeedback, colorSensor colorSensor) {
         this.servo = servo;
         this.servoFeedback = servoFeedback;
+        this.servo.setPosition(indexerConfig.outakeRotations[0]);
         slots = new Colors[]{Colors.UNKNOWN, Colors.UNKNOWN, Colors.UNKNOWN};
         this.colorSensor = colorSensor;
     }
@@ -28,6 +30,7 @@ public class indexer implements subsystem {
             if (slots[i] == Colors.UNKNOWN) {
                 gotoPos = indexerConfig.intakeRotations[i];
                 selected = i;
+                isOutake = false;
                 break;
             }
         }
@@ -38,6 +41,7 @@ public class indexer implements subsystem {
             if (slots[i] == Colors.GREEN) {
                 gotoPos = indexerConfig.outakeRotations[i];
                 selected = i;
+                isOutake = true;
                 return true;
             }
         }
@@ -49,6 +53,7 @@ public class indexer implements subsystem {
             if (slots[i] == Colors.PURPLE) {
                 gotoPos = indexerConfig.outakeRotations[i];
                 selected = i;
+                isOutake = true;
                 return true;
             }
         }
@@ -98,7 +103,8 @@ public class indexer implements subsystem {
 
     @Override
     public boolean isBusy() {
-        return (Math.abs(getServoPhysicalPos() - gotoPos) > indexerConfig.threshold);
+        if (isOutake) return (Math.abs(getServoPhysicalPos() - gotoPos) > indexerConfig.outakeThreshold);
+        return (Math.abs(getServoPhysicalPos() - gotoPos) > indexerConfig.intakeThreshold);
     }
 
     @Override

@@ -6,13 +6,13 @@ public class FieldState {
     public static void setPattern(int tagID) {
         switch (tagID) {
             case 21:
-                pattern = new Colors[]{Colors.GREEN, Colors.PURPLE, Colors.PURPLE};
+                pattern = new Colors[]{Colors.PURPLE, Colors.PURPLE, Colors.GREEN};
                 break;
             case 22:
                 pattern = new Colors[]{Colors.PURPLE, Colors.GREEN, Colors.PURPLE};
                 break;
             case 23:
-                pattern = new Colors[]{Colors.PURPLE, Colors.PURPLE, Colors.GREEN};
+                pattern = new Colors[]{Colors.GREEN, Colors.PURPLE, Colors.PURPLE};
                 break;
         }
     }

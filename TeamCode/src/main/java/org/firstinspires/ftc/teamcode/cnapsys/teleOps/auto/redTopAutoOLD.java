@@ -7,20 +7,16 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.teamcode.cnapsys.core.Robot;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Colors;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.FieldState;
 
-import java.time.format.ResolverStyle;
 
-@Autonomous(name="Red Top Auto")
-public class redTopAuto extends OpMode {
+public class redTopAutoOLD extends OpMode {
     private Robot robot;
     private final Alliance alliance = Alliance.RED;
     private static final Pose startPos = new Pose(120.685, 127.204, Math.toRadians(126));
