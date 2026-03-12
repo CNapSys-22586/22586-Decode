@@ -16,14 +16,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(13)
-            .forwardZeroPowerAcceleration(-46.4205526)
-            .lateralZeroPowerAcceleration(-77.0637475)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0))
-            .headingPIDFCoefficients(new PIDFCoefficients(3.0, 0.0, 0.1, 0.01))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0, 0.003, 0.6, 0.01));
+            .mass(11)
+            .forwardZeroPowerAcceleration(-26.647)
+            .lateralZeroPowerAcceleration(-55.384)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.131, 0, 0.02, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(1.5, 0.0, 0.08, 0.01))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01, 0, 0.0015, 0.6, 0.01));
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.98, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.3, 2.2);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -35,17 +35,17 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(75.514894)
-            .yVelocity(59.743057);
+            .xVelocity(83.579)
+            .yVelocity(67.699);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(7.7)
-            .strafePodX(-6.8)
-            .distanceUnit(DistanceUnit.INCH)
+            .forwardPodY(-8.5)
+            .strafePodX(-10.5)
+            .distanceUnit(DistanceUnit.CM)
             .hardwareMapName("odoPC")
-            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD)
-            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

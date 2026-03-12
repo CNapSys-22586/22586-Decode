@@ -1,17 +1,19 @@
-package org.firstinspires.ftc.teamcode.cnapsys.subsystems.intake;
+package org.firstinspires.ftc.teamcode.cnapsys.subsystems.Intake;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.teamcode.cnapsys.core.interfaces.subsystem;
+import org.firstinspires.ftc.teamcode.cnapsys.core.interfaces.Subsystem;
+import org.firstinspires.ftc.teamcode.cnapsys.core.vars.SubsystemData;
 
-public class intake implements subsystem {
+public class Intake implements Subsystem {
     private final DcMotorEx motor;
 
     private boolean enabled = false;
 
-    public intake(DcMotorEx motor) {
+    public Intake(DcMotorEx motor) {
         this.motor = motor;
+        this.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         this.motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }
 
@@ -28,21 +30,17 @@ public class intake implements subsystem {
         enabled = false;
     }
 
-    public double getCurrentTPS() {
-        return motor.getVelocity();
-    }
-
     public void reverse() {
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
-    }
-
-    public void forward() {
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
+    public void forward() {
+        motor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
     @Override
-    public void update(double deltaTime, TelemetryManager tm) {
-        if (enabled) motor.setPower(intakeConfig.power);
+    public void update(double deltaTime, TelemetryManager tm, SubsystemData data) {
+        if (enabled) motor.setPower(IntakeConfig.power);
         else motor.setPower(0);
     }
 }

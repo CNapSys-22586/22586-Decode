@@ -1,70 +1,61 @@
 package org.firstinspires.ftc.teamcode.cnapsys.teleOps.teleOps;
 
-import android.graphics.Color;
-
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.teamcode.cnapsys.core.RobotConfig;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
 import org.firstinspires.ftc.teamcode.cnapsys.core.Robot;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Colors;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.FieldState;
+import org.firstinspires.ftc.teamcode.cnapsys.subsystems.Turret.TurretConfig;
+
 
 @TeleOp(name="TeleOpRED")
 public class teleOpRED extends OpMode {
-
     private Robot robot;
     private final Alliance alliance = Alliance.RED;
-    private ElapsedTime timer;
-    private Limelight3A limeLight;
+    private boolean isIntakeActive = true;
 
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, alliance, true);
-        robot.intake.enable();
+        robot = new Robot(hardwareMap, alliance, false);
         robot.follower.startTeleopDrive();
-        limeLight = hardwareMap.get(Limelight3A.class, "limelight");
-        if (!FieldState.isInit()) limeLight.start();
-    }
-    @Override
-    public void init_loop() {
-        if (limeLight.isConnected()) robot.indicatorLight.setColor(Colors.GREEN);
-        else robot.indicatorLight.setColor(Colors.RED);
     }
 
     @Override
-    public void start() {
-        timer = new ElapsedTime();
-        robot.indicatorLight.turnOff();
+    public void init_loop() {
+        if (gamepad1.circleWasPressed()) {
+            robot.turret.reset();
+            robot.follower.setPose(new Pose(38.65, 32.34, Math.toRadians(90)));
+        }
     }
 
     @Override
     public void loop() {
-        if (!FieldState.isInit() && limeLight.isRunning()) {
-            LLResult result = limeLight.getLatestResult();
-            if (result != null && result.isValid()) {
-                int id = result.getFiducialResults().get(0).getFiducialId();
-                FieldState.setPattern(id);
-                limeLight.stop();
+        // INTAKE TOGGLE
+        if (gamepad1.rightBumperWasPressed()) isIntakeActive = !isIntakeActive;
+        if (isIntakeActive) robot.intake.enable();
+        else robot.intake.disable();
+        //SHOOT LOGIC
+        if (gamepad1.triangleWasPressed() && !robot.shooter.isBusy()) robot.blocker.activate();
+        //INTAKE REVERSE
+        if (gamepad1.dpadDownWasPressed()) robot.intake.reverse();
+        else if (gamepad1.dpadDownWasReleased()) robot.intake.forward();
+        //POWER LIMITER
+        if (gamepad1.right_trigger > 0.1f) robot.follower.setMaxPower(RobotConfig.SLOW_FOLLOWER_SPEED);
+        else robot.follower.setMaxPower(RobotConfig.MAX_FOLLOWER_SPEED);
+        //DEBUG FUNCTIONS
+        if (gamepad1.left_bumper) {
+            if (gamepad1.dpadLeftWasPressed()) TurretConfig.ROTATION_OFFSET -= 3;
+            else if (gamepad1.dpadRightWasPressed()) TurretConfig.ROTATION_OFFSET += 3;
+            else if (gamepad1.dpadUpWasPressed()) {
+                if (robot.turret.isEnabled()) robot.turret.disable();
+                else robot.turret.enable();
             }
         }
-        if (gamepad1.rightBumperWasPressed()) robot.shootPurple();
-        else if (gamepad1.leftBumperWasPressed()) robot.shootGreen();
-        else if (gamepad1.triangleWasPressed()) robot.shootAll();
-        if (gamepad1.dpadUpWasPressed()) robot.cancelShooting();
-        if (gamepad1.dpadLeftWasPressed()) robot.intake.reverse();
-        else if (gamepad1.dpadLeftWasReleased()) robot.intake.forward();
-        if (gamepad1.left_trigger > 0.1f) robot.follower.setMaxPower(0.6);
-        else robot.follower.setMaxPower(1);
-        if (timer.seconds() / 60 >= 2) robot.intake.disable();
-        robot.tm.update(telemetry);
         robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
         robot.update();
+        robot.tm.update(telemetry);
     }
 
     @Override

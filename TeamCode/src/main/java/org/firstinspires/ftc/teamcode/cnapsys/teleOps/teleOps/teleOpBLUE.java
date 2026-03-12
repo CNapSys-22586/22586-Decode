@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.cnapsys.teleOps.teleOps;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.teamcode.cnapsys.core.RobotConfig;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Colors;
 import org.firstinspires.ftc.teamcode.cnapsys.core.Robot;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.FieldState;
+import org.firstinspires.ftc.teamcode.cnapsys.subsystems.Turret.TurretConfig;
 
 
 @TeleOp(name="TeleOpBLUE")
@@ -18,49 +14,31 @@ public class teleOpBLUE extends OpMode {
 
     private Robot robot;
     private final Alliance alliance = Alliance.BLUE;
-    private ElapsedTime timer;
-    private Limelight3A limeLight;
+    private boolean isIntakeActive = true;
 
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, alliance, true);
-        robot.intake.enable();
+        robot = new Robot(hardwareMap, alliance, false);
+        robot.turret.reset(); //REMOVE THIS FOR ACTUAL GAME SINCE IT IS RAN DURING AUTO
         robot.follower.startTeleopDrive();
-        limeLight = hardwareMap.get(Limelight3A.class, "limelight");
-        if (!FieldState.isInit()) limeLight.start();
-    }
-
-    @Override
-    public void init_loop() {
-        if (limeLight.isConnected()) robot.indicatorLight.setColor(Colors.GREEN);
-        else robot.indicatorLight.setColor(Colors.RED);
-    }
-
-    @Override
-    public void start() {
-        timer = new ElapsedTime();
-        robot.indicatorLight.turnOff();
     }
 
     @Override
     public void loop() {
-        if (!FieldState.isInit() && limeLight.isRunning()) {
-            LLResult result = limeLight.getLatestResult();
-            if (result != null && result.isValid()) {
-                int id = result.getFiducialResults().get(0).getFiducialId();
-                FieldState.setPattern(id);
-                limeLight.stop();
-            }
-        }
-        if (gamepad1.rightBumperWasPressed()) robot.shootPurple();
-        else if (gamepad1.leftBumperWasPressed()) robot.shootGreen();
-        else if (gamepad1.triangleWasPressed()) robot.shootAll();
-        if (gamepad1.dpadUpWasPressed()) robot.cancelShooting();
+        // INTAKE TOGGLE
+        if (gamepad1.rightBumperWasPressed()) isIntakeActive = !isIntakeActive;
+        if (isIntakeActive) robot.intake.enable();
+        else robot.intake.disable();
+        //SHOOT LOGIC
+        if (gamepad1.triangleWasPressed() && !robot.turret.isBusy() && !robot.shooter.isBusy()) robot.blocker.activate();
+        else if (gamepad1.triangleWasPressed()) gamepad1.rumbleBlips(3);
+        //INTAKE REVERSE WHILE PRESSED
         if (gamepad1.dpadLeftWasPressed()) robot.intake.reverse();
         else if (gamepad1.dpadLeftWasReleased()) robot.intake.forward();
-        if (gamepad1.left_trigger > 0.1f) robot.follower.setMaxPower(0.6);
-        else robot.follower.setMaxPower(1);
-        if (timer.seconds() / 60 >= 2) robot.intake.disable();
+        //POWER LIMITER
+        if (gamepad1.right_trigger > 0.1f) robot.follower.setMaxPower(RobotConfig.SLOW_FOLLOWER_SPEED);
+        else robot.follower.setMaxPower(RobotConfig.MAX_FOLLOWER_SPEED);
+
         robot.tm.update(telemetry);
         robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
         robot.update();

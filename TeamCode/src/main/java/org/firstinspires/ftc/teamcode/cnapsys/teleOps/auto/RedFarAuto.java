@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.cnapsys.teleOps.auto;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -7,25 +9,24 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.cnapsys.core.Robot;
 import org.firstinspires.ftc.teamcode.cnapsys.core.RobotConfig;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
-import org.firstinspires.ftc.teamcode.cnapsys.teleOps.auto.constants.RedTopAutoConstants;
+import org.firstinspires.ftc.teamcode.cnapsys.teleOps.auto.constants.RedFarAutoConstants;
 
-
-@Autonomous(name="Auto Top RED")
-public class RedTopAuto extends OpMode {
+@Autonomous(name="Auto Far RED")
+public class RedFarAuto extends OpMode {
 
     private Robot robot;
     private final Alliance alliance = Alliance.RED;
-    private RedTopAutoConstants constants;
-    private RedTopAutoConstants.Step currentStep;
+    private RedFarAutoConstants constants;
+    private RedFarAutoConstants.Step currentStep;
     private final ElapsedTime stepTimer = new ElapsedTime();
     private boolean stepExecuted = false;
 
     @Override
     public void init() {
-        RobotConfig.ROBOT_POSE = RedTopAutoConstants.START_POS;
+        RobotConfig.ROBOT_POSE = RedFarAutoConstants.START_POS;
         robot = new Robot(hardwareMap, alliance, true);
         robot.intake.enable();
-        constants = new RedTopAutoConstants(robot.follower, robot, stepTimer);
+        constants = new RedFarAutoConstants(robot.follower, robot, stepTimer);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class RedTopAuto extends OpMode {
         robot.tm.update(telemetry);
     }
 
-    private void executeStep(RedTopAutoConstants.Step step) {
+    private void executeStep(RedFarAutoConstants.Step step) {
         switch (step.action) {
             case MOVE:
                 robot.follower.setMaxPower(step.speed);

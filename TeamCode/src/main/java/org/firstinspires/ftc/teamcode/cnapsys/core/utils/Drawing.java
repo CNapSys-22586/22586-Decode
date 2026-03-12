@@ -10,16 +10,20 @@ public class Drawing {
 
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
 
+    private static final Style poseAdjusted = new Style(
+            "", "blue", 0.75
+    );
+
     private static final Style robotLook = new Style(
             "", "#3F51B5", 0.75
     );
 
     private static final Style targetingLineLookInRange = new Style(
-            "green", "black", 0.75
+            "green", "green", 0.75
     );
 
     private static final Style targetingLineLookOutOfRange = new Style(
-            "red", "black", 0.75
+            "red", "red", 0.75
     );
 
     public static void init() {
@@ -44,16 +48,19 @@ public class Drawing {
         panelsField.line(x2, y2);
     }
 
-    public static void drawTargetLine(Pose robotPose, Pose targetPose, boolean inRange) {
+    public static void drawTargetLine(Pose robotPose, Pose targetPose, Pose offsetTargetPose, boolean inRange) {
         if (inRange) panelsField.setStyle(targetingLineLookInRange);
         else panelsField.setStyle(targetingLineLookOutOfRange);
         panelsField.moveCursor(robotPose.getX(), robotPose.getY());
         panelsField.line(targetPose.getX(), targetPose.getY());
+        panelsField.setStyle(poseAdjusted);
+        panelsField.moveCursor(robotPose.getX(), robotPose.getY());
+        panelsField.line(offsetTargetPose.getX(), offsetTargetPose.getY());
     }
 
-    public static void update(Pose robotPose, Pose targetPose, boolean inRange) {
+    public static void update(Pose robotPose, Pose targetPose, Pose offsetTargetPose, boolean inRange) {
         drawRobot(robotPose, robotLook);
-        drawTargetLine(robotPose, targetPose, inRange);
+        drawTargetLine(robotPose, targetPose, offsetTargetPose, inRange);
         panelsField.update();
     }
 }

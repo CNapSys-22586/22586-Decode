@@ -9,15 +9,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.cnapsys.core.Robot;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Action;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.FieldState;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.IdleConditions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class RedTopAutoConstants {
-    public static final Pose START_POS = new Pose(120.685, 127.204, Math.toRadians(126));
+    public static final Pose START_POS = new Pose(120.068, 129.514, Math.toRadians(-53));
 
     private final List<Step> steps = new ArrayList<>();
     private int currentStepIndex = 0;
@@ -45,14 +43,6 @@ public class RedTopAutoConstants {
             this.completionCondition = condition;
         }
 
-        // For IDLE/WAIT actions (must provide condition)
-        private Step(Action action, IdleConditions idleCondition, BooleanSupplier condition) {
-            this.action = action;
-            this.path = null;
-            this.speed = 1.0;
-            this.completionCondition = condition;
-        }
-
         // Check if this step is complete
         public boolean isComplete() {
             return completionCondition.getAsBoolean();
@@ -73,35 +63,47 @@ public class RedTopAutoConstants {
 
         // IDLE/WAIT with condition
         public static Step waitFor(BooleanSupplier condition) {
-            return new Step(Action.IDLE, null, condition);
-        }
-
-        // IDLE with enum condition helper
-        public static Step waitFor(IdleConditions idleCondition, BooleanSupplier condition) {
-            return new Step(Action.IDLE, idleCondition, condition);
+            return new Step(Action.IDLE, condition);
         }
     }
 
     public RedTopAutoConstants(Follower follower, Robot robot, ElapsedTime timer) {
         List<PathChain> paths = buildPaths(follower);
 
-        // Example autonomous sequence for a 9 artifact auto + leave
-        steps.add(StepBuilder.move(paths.get(0), 1.0, () -> !follower.isBusy()));
-        steps.add(StepBuilder.shoot(() -> !robot.isBusy()));
 
-        steps.add(StepBuilder.move(paths.get(1), 0.5, () -> !follower.isBusy()));
-        steps.add(StepBuilder.waitFor(() -> robot.indexer.isFull() || timer.seconds() >= 2));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(0), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(1), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(2), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        steps.add(StepBuilder.move(paths.get(2), 1.0, () -> !follower.isBusy()));
-        steps.add(StepBuilder.shoot(() -> !robot.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(3), 0.63, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 700));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(4), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(5), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        steps.add(StepBuilder.move(paths.get(3), 0.5, () -> !follower.isBusy()));
-        steps.add(StepBuilder.waitFor(() -> robot.indexer.isFull() || timer.seconds() >= 2));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(3), 0.63, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 700));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(4), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(5), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        steps.add(StepBuilder.move(paths.get(4), 1.0, () -> !follower.isBusy()));
-        steps.add(StepBuilder.shoot(() -> !robot.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(3), 0.63, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 700));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(4), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(5), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        steps.add(StepBuilder.move(paths.get(5), 0.8, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(6), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(7), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
     }
 
     private List<PathChain> buildPaths(Follower follower) {
@@ -110,62 +112,80 @@ public class RedTopAutoConstants {
         // Path 1
         paths.add(follower.pathBuilder()
                 .addPath(new BezierLine(
-                        START_POS,
-                        new Pose(103.435, 109.617)
+                        new Pose(120.068, 129.514),
+                        new Pose(84.030, 77.737)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(126))
+                .setLinearHeadingInterpolation(Math.toRadians(-53), Math.toRadians(-53))
                 .build());
 
         // Path 2
         paths.add(follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Pose(103.435, 109.617),
-                        new Pose(84.826, 81.181),
-                        new Pose(122.901, 83.385)
+                        new Pose(84.030, 77.737),
+                        new Pose(94.880, 57.249),
+                        new Pose(129.149, 59.403)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setTangentHeadingInterpolation()
                 .build());
 
         // Path 3
         paths.add(follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Pose(122.901, 83.385),
-                        new Pose(103.215, 109.526)
+                .addPath(new BezierCurve(
+                        new Pose(129.149, 59.403),
+                        new Pose(94.924, 57.326),
+                        new Pose(84.030, 77.737)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(48))
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build());
 
         // Path 4
         paths.add(follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Pose(103.215, 109.526),
-                        new Pose(90.730, 66.781),
-                        new Pose(81.024, 61.160),
-                        new Pose(108.364, 58.694),
-                        new Pose(129.369, 59.150)
+                .addPath(new BezierLine(
+                        new Pose(84.030, 77.737),
+                        new Pose(131.718, 60.336)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(-53), Math.toRadians(28))
                 .build());
 
         // Path 5
         paths.add(follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Pose(129.369, 59.150),
-                        new Pose(78.984, 41.512),
-                        new Pose(93.075, 83.093),
-                        new Pose(103.448, 109.504)
+                .addPath(new BezierLine(
+                        new Pose(131.718, 60.336),
+                        new Pose(131.440, 54.743)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(36))
+                .setConstantHeadingInterpolation(Math.toRadians(28))
                 .build());
 
         // Path 6
         paths.add(follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Pose(103.448, 109.504),
-                        new Pose(122.227, 96.967)
-
+                .addPath(new BezierCurve(
+                        new Pose(131.440, 54.743),
+                        new Pose(105.916, 58.364),
+                        new Pose(84.030, 77.737)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build());
+
+        // Path 7
+        paths.add(follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Pose(84.030, 77.737),
+                        new Pose(91.943, 85.476),
+                        new Pose(126.997, 83.603)
+                ))
+                .setTangentHeadingInterpolation()
+                .build());
+
+        // Path 8
+        paths.add(follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Pose(126.997, 83.603),
+                        new Pose(93.268, 107.281)
+                ))
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build());
 
         return paths;
