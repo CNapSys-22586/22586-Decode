@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.cnapsys.subsystems.Turret.TurretConfig;
 
 @TeleOp(name="TeleOpBLUE")
 public class teleOpBLUE extends OpMode {
-
     private Robot robot;
     private final Alliance alliance = Alliance.BLUE;
     private boolean isIntakeActive = true;
@@ -19,8 +18,21 @@ public class teleOpBLUE extends OpMode {
     @Override
     public void init() {
         robot = new Robot(hardwareMap, alliance, false);
-        robot.turret.reset(); //REMOVE THIS FOR ACTUAL GAME SINCE IT IS RAN DURING AUTO
         robot.follower.startTeleopDrive();
+        RobotConfig.COMPENSATE_FOR_VELOCITY = true;
+    }
+
+    public void resetIMU() throws InterruptedException {
+        robot.follower.poseTracker.resetIMU();
+        robot.follower.setPose(RobotConfig.PARK_POSE.mirror());
+    }
+
+    @Override
+    public void init_loop() {
+        if (gamepad1.circleWasPressed()) {
+            robot.turret.reset();
+            robot.follower.setPose(RobotConfig.PARK_POSE.mirror());
+        }
     }
 
     @Override
@@ -30,22 +42,36 @@ public class teleOpBLUE extends OpMode {
         if (isIntakeActive) robot.intake.enable();
         else robot.intake.disable();
         //SHOOT LOGIC
-        if (gamepad1.triangleWasPressed() && !robot.turret.isBusy() && !robot.shooter.isBusy()) robot.blocker.activate();
-        else if (gamepad1.triangleWasPressed()) gamepad1.rumbleBlips(3);
-        //INTAKE REVERSE WHILE PRESSED
-        if (gamepad1.dpadLeftWasPressed()) robot.intake.reverse();
-        else if (gamepad1.dpadLeftWasReleased()) robot.intake.forward();
+        if (gamepad1.triangleWasPressed() && !robot.shooter.isBusy()) robot.blocker.activate();
+        //INTAKE REVERSE
+        if (gamepad1.dpadDownWasPressed()) robot.intake.reverse();
+        else if (gamepad1.dpadDownWasReleased()) robot.intake.forward();
         //POWER LIMITER
         if (gamepad1.right_trigger > 0.1f) robot.follower.setMaxPower(RobotConfig.SLOW_FOLLOWER_SPEED);
         else robot.follower.setMaxPower(RobotConfig.MAX_FOLLOWER_SPEED);
-
-        robot.tm.update(telemetry);
+        //DEBUG FUNCTIONS
+        if (gamepad1.left_bumper) {
+            if (gamepad1.dpadLeftWasPressed()) TurretConfig.ROTATION_OFFSET += 3;
+            else if (gamepad1.dpadRightWasPressed()) TurretConfig.ROTATION_OFFSET -= 3;
+            else if (gamepad1.dpadUpWasPressed()) {
+                if (robot.turret.isEnabled()) robot.turret.disable();
+                else robot.turret.enable();
+            }
+            else if (gamepad1.squareWasPressed() && gamepad1.circleWasPressed()) {
+                try {
+                    resetIMU();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
         robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
         robot.update();
+        robot.tm.update(telemetry);
     }
 
     @Override
     public void stop() {
-        //Robot.defaultPose = robot.follower.getPose();
+        RobotConfig.ROBOT_POSE = robot.follower.getPose();
     }
 }

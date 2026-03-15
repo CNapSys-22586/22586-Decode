@@ -97,8 +97,8 @@ public class Turret implements Subsystem {
 
         if (!enabled) targetAngleDeg = -TurretConfig.ROTATION_OFFSET;
 
-        if(targetAngleDeg >= 400)targetAngleDeg=targetAngleDeg-360;
-        if(targetAngleDeg < 0)targetAngleDeg=targetAngleDeg+360;
+        if(targetAngleDeg > 400) targetAngleDeg = targetAngleDeg - 360;
+        if(targetAngleDeg < 0) targetAngleDeg = targetAngleDeg + 360;
         double error = targetAngleDeg - currentAngleDeg;
 
         double power = pidf.update(error);

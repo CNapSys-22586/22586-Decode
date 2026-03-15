@@ -69,30 +69,33 @@ public class RedFarAutoConstants {
 
     public RedFarAutoConstants(Follower follower, Robot robot, ElapsedTime timer) {
         List<PathChain> paths = buildPaths(follower);
-
-        // PRELOAD + LINE 3
+// PRELOAD + LINE 3
         steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 100));
         steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(0), 1, () -> !follower.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(1), 1, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 100));
         steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        //HZP FIRST
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(2), 1, () -> !follower.isBusy()));
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(3), 1, () -> !follower.isBusy()));
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(4), 1, () -> !follower.isBusy()));
+        ///HZP FIRST
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(2), 1, () -> !follower.isBusy() || timer.seconds() >= 4));
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(3), 0.6, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(4), 0.7, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 100));
         steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(5), 1, () -> !follower.isBusy()));
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(6), 1, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(5), 0.8, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(6), 0.7, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 100));
         steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(5), 1, () -> !follower.isBusy()));
-        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(6), 1, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(5), 0.8, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.move(paths.get(6), 0.7, () -> !follower.isBusy()));
+        steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 100));
         steps.add(RedFarAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedFarAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 

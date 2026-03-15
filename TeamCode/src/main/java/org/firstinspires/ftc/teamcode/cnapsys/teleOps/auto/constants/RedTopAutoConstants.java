@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class RedTopAutoConstants {
-    public static final Pose START_POS = new Pose(120.068, 129.514, Math.toRadians(-53));
+    public static final Pose START_POS = new Pose(114.740, 128.127, Math.toRadians(0));
 
     private final List<Step> steps = new ArrayList<>();
     private int currentStepIndex = 0;
@@ -69,13 +69,19 @@ public class RedTopAutoConstants {
 
     public RedTopAutoConstants(Follower follower, Robot robot, ElapsedTime timer) {
         List<PathChain> paths = buildPaths(follower);
-
-
-        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(0), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(0), 1, () -> timer.milliseconds() > 100));
         steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !follower.isBusy()));
         steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(1), 1, () -> !follower.isBusy()));
         steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(2), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
+
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(3), 0.63, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> timer.milliseconds() >= 700));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(4), 1, () -> !follower.isBusy()));
+        steps.add(RedTopAutoConstants.StepBuilder.move(paths.get(5), 1, () -> !follower.isBusy()));
         steps.add(RedTopAutoConstants.StepBuilder.waitFor(() -> !robot.shooter.isBusy() && !robot.turret.isBusy()));
         steps.add(RedTopAutoConstants.StepBuilder.shoot(() -> !robot.blocker.isBusy()));
 
@@ -112,10 +118,10 @@ public class RedTopAutoConstants {
         // Path 1
         paths.add(follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Pose(120.068, 129.514),
+                        new Pose(114.740, 128.127),
                         new Pose(84.030, 77.737)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-53), Math.toRadians(-53))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build());
 
         // Path 2
@@ -135,15 +141,14 @@ public class RedTopAutoConstants {
                         new Pose(94.924, 57.326),
                         new Pose(84.030, 77.737)
                 ))
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build());
 
         // Path 4
         paths.add(follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Pose(84.030, 77.737),
-                        new Pose(131.718, 60.336)
+                        new Pose(131.564, 60.798)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-53), Math.toRadians(28))
                 .build());
@@ -151,10 +156,10 @@ public class RedTopAutoConstants {
         // Path 5
         paths.add(follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Pose(131.718, 60.336),
+                        new Pose(131.564, 60.798),
                         new Pose(131.440, 54.743)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(28))
+                .setLinearHeadingInterpolation(Math.toRadians(28), Math.toRadians(0))
                 .build());
 
         // Path 6
@@ -164,16 +169,15 @@ public class RedTopAutoConstants {
                         new Pose(105.916, 58.364),
                         new Pose(84.030, 77.737)
                 ))
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build());
 
         // Path 7
         paths.add(follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Pose(84.030, 77.737),
-                        new Pose(91.943, 85.476),
-                        new Pose(126.997, 83.603)
+                        new Pose(91.944, 85.476),
+                        new Pose(126.997, 83.604)
                 ))
                 .setTangentHeadingInterpolation()
                 .build());
@@ -181,7 +185,7 @@ public class RedTopAutoConstants {
         // Path 8
         paths.add(follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Pose(126.997, 83.603),
+                        new Pose(126.997, 83.604),
                         new Pose(93.268, 107.281)
                 ))
                 .setTangentHeadingInterpolation()

@@ -11,11 +11,11 @@ import java.util.List;
 @Configurable
 public class ShooterConfig {
     @Sorter(sort=1)
-    public static double KP = 0.002;
+    public static double KP = 0.01;
     @Sorter(sort=2)
-    public static double KV = 0.0004;
+    public static double KV = 0.00033;
     @Sorter(sort=3)
-    public static double KS = 0.02;
+    public static double KS = 0;
     @Sorter(sort=5)
     public static double GEAR_RATIO = (double) 365 / 40;
     @Sorter(sort=6)
@@ -27,10 +27,12 @@ public class ShooterConfig {
     @Sorter(sort=8)
     public static double HOOD_ANGLE_MAX = 46.8;
     @Sorter(sort=9)
-    public static double EFFICIENCY = 0.2;
+    public static double EFFICIENCY = 0.17;
     @Sorter(sort=10)
-    public static double HOOD_COMPENSATION_AMOUNT = 0.014;
+    public static double TPR = 28;
     @Sorter(sort=11)
+    public static double HOOD_COMPENSATION_AMOUNT = 0.010;
+    @Sorter(sort=12)
     public static List<ShooterPoint> INTERPOLATION_POINTS = new ArrayList<>();
 //
 //    static {
@@ -75,10 +77,8 @@ public class ShooterConfig {
         INTERPOLATION_POINTS.add(new ShooterPoint(33, 44, 1740, 120));
         INTERPOLATION_POINTS.add(new ShooterPoint(33, 45.5, 1850, 130));
         INTERPOLATION_POINTS.add(new ShooterPoint(33, 45.7, 1900, 140));
-        INTERPOLATION_POINTS.add(new ShooterPoint(33, 46.8, 1970, 150));
-        INTERPOLATION_POINTS.add(new ShooterPoint(33, 46.8, 1970, 160));
-
-
+        INTERPOLATION_POINTS.add(new ShooterPoint(33, 46.8, 1900, 150));
+        INTERPOLATION_POINTS.add(new ShooterPoint(33, 46.8, 1900, 160));
     }
 
 //    static {

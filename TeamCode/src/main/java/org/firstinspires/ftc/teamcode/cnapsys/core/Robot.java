@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class Robot {
     public Pose goalPose;
+    private boolean firstUpdate = false;
     public final Intake intake;
     public final VoltageSensor voltageSensor;
     public final Shooter shooter;
@@ -31,6 +32,10 @@ public class Robot {
     public final Follower follower;
     public final ElapsedTime timer;
     public final TelemetryManager tm;
+
+    public boolean isFirstUpdateComplete() {
+        return firstUpdate;
+    }
 
     public Robot(HardwareMap hwMap, Alliance alliance, boolean resetSystems) {
         if (alliance == Alliance.RED) goalPose = RobotConfig.GOAL_POSE.mirror();
@@ -60,7 +65,8 @@ public class Robot {
 
     public void update() {
         SubsystemData data = new SubsystemData();
-        data.goalPoseAdjusted = new Pose(goalPose.getX() - follower.getVelocity().getXComponent() * shooter.getTOF(), goalPose.getY() - follower.getVelocity().getYComponent() * shooter.getTOF());
+        if (firstUpdate) data.goalPoseAdjusted = new Pose(goalPose.getX() - follower.getVelocity().getXComponent() * shooter.getTOF(), goalPose.getY() - follower.getVelocity().getYComponent() * shooter.getTOF());
+        else data.goalPoseAdjusted = goalPose;
         data.goalPose = goalPose;
         data.follower = follower;
 
@@ -77,5 +83,6 @@ public class Robot {
         blocker.update(deltaTime, tm, data);
         Drawing.update(follower.getPose(), goalPose, data.goalPoseAdjusted, (!shooter.isBusy()));
         follower.update();
+        firstUpdate = true;
     }
 }

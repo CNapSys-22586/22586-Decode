@@ -59,6 +59,7 @@ public class Shooter implements Subsystem {
     }
 
     private void setHoodPosition(double angle) {
+        if (Double.isNaN(angle)) return;
         hoodServo.setPosition(angle * ShooterConfig.GEAR_RATIO / 255 - 1.180);
     }
 
@@ -74,8 +75,8 @@ public class Shooter implements Subsystem {
 
     @Override
     public void update(double deltaTime, TelemetryManager tm, SubsystemData data) {
-        if (!RobotConfig.COMPENSATE_FOR_VELOCITY) distance = data.follower.getPose().distanceFrom(data.goalPose);
-        else distance = data.follower.getPose().distanceFrom(data.goalPoseAdjusted);
+        if (RobotConfig.COMPENSATE_FOR_VELOCITY) distance = data.follower.getPose().distanceFrom(data.goalPoseAdjusted);
+        else distance = data.follower.getPose().distanceFrom(data.goalPose);
         ShooterPoint target = interpolator.interpolateData(distance);
         targetTPS = target.TPS;
         if (idle) targetTPS = ShooterConfig.IDLE_TPS;

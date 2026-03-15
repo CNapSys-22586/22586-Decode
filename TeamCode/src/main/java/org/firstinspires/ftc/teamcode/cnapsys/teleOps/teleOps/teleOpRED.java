@@ -20,13 +20,19 @@ public class teleOpRED extends OpMode {
     public void init() {
         robot = new Robot(hardwareMap, alliance, false);
         robot.follower.startTeleopDrive();
+        RobotConfig.COMPENSATE_FOR_VELOCITY = true;
+    }
+
+    public void resetIMU() throws InterruptedException {
+        robot.follower.poseTracker.resetIMU();
+        robot.follower.setPose(RobotConfig.PARK_POSE);
     }
 
     @Override
     public void init_loop() {
         if (gamepad1.circleWasPressed()) {
             robot.turret.reset();
-            robot.follower.setPose(new Pose(38.65, 32.34, Math.toRadians(90)));
+            robot.follower.setPose(RobotConfig.PARK_POSE);
         }
     }
 
@@ -46,11 +52,18 @@ public class teleOpRED extends OpMode {
         else robot.follower.setMaxPower(RobotConfig.MAX_FOLLOWER_SPEED);
         //DEBUG FUNCTIONS
         if (gamepad1.left_bumper) {
-            if (gamepad1.dpadLeftWasPressed()) TurretConfig.ROTATION_OFFSET -= 3;
-            else if (gamepad1.dpadRightWasPressed()) TurretConfig.ROTATION_OFFSET += 3;
+            if (gamepad1.dpadLeftWasPressed()) TurretConfig.ROTATION_OFFSET += 3;
+            else if (gamepad1.dpadRightWasPressed()) TurretConfig.ROTATION_OFFSET -= 3;
             else if (gamepad1.dpadUpWasPressed()) {
                 if (robot.turret.isEnabled()) robot.turret.disable();
                 else robot.turret.enable();
+            }
+            else if (gamepad1.squareWasPressed() && gamepad1.circleWasPressed()) {
+                try {
+                    resetIMU();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
@@ -60,6 +73,6 @@ public class teleOpRED extends OpMode {
 
     @Override
     public void stop() {
-        //Robot.defaultPose = robot.follower.getPose();
+        RobotConfig.ROBOT_POSE = robot.follower.getPose();
     }
 }

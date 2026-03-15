@@ -6,5 +6,5 @@ import com.bylazar.configurables.annotations.Sorter;
 @Configurable
 public class IntakeConfig {
     @Sorter(sort  = 0)
-    public static double power = 0.9;
+    public static double power = 1;
 }

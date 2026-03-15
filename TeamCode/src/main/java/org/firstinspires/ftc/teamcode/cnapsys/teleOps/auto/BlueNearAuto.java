@@ -7,25 +7,25 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.cnapsys.core.Robot;
 import org.firstinspires.ftc.teamcode.cnapsys.core.RobotConfig;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
-import org.firstinspires.ftc.teamcode.cnapsys.teleOps.auto.constants.RedTopAutoConstants;
+import org.firstinspires.ftc.teamcode.cnapsys.teleOps.auto.constants.BlueNearConstants;
 
 
-@Autonomous(name="Auto Top RED")
-public class RedTopAuto extends OpMode {
+@Autonomous(name="Blue Top Auto")
+public class BlueNearAuto extends OpMode {
 
     private Robot robot;
-    private final Alliance alliance = Alliance.RED;
-    private RedTopAutoConstants constants;
-    private RedTopAutoConstants.Step currentStep;
+    private final Alliance alliance = Alliance.BLUE;
+    private BlueNearConstants constants;
+    private BlueNearConstants.Step currentStep;
     private final ElapsedTime stepTimer = new ElapsedTime();
     private boolean stepExecuted = false;
 
     @Override
     public void init() {
-        RobotConfig.ROBOT_POSE = RedTopAutoConstants.START_POS;
+        RobotConfig.ROBOT_POSE = BlueNearConstants.START_POS;
         robot = new Robot(hardwareMap, alliance, true);
         robot.intake.enable();
-        constants = new RedTopAutoConstants(robot.follower, robot, stepTimer);
+        constants = new BlueNearConstants(robot.follower, robot, stepTimer);
         RobotConfig.COMPENSATE_FOR_VELOCITY = true;
     }
 
@@ -33,7 +33,6 @@ public class RedTopAuto extends OpMode {
     public void start() {
         stepTimer.reset();
         currentStep = constants.getCurrentStep();
-
     }
 
     @Override
@@ -75,7 +74,7 @@ public class RedTopAuto extends OpMode {
         robot.tm.update(telemetry);
     }
 
-    private void executeStep(RedTopAutoConstants.Step step) {
+    private void executeStep(BlueNearConstants.Step step) {
         switch (step.action) {
             case MOVE:
                 robot.follower.setMaxPower(step.speed);
