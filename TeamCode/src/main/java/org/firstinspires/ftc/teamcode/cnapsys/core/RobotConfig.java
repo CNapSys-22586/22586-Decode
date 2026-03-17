@@ -9,9 +9,9 @@ import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
 @Configurable
 public class RobotConfig {
     @Sorter(sort=1)
-    public static Pose GOAL_POSE = new Pose(6, 144, 0); // OLD one was 6 144
+    public static Pose GOAL_POSE = new Pose(6, 144, 0);
     @Sorter(sort=2)
-    public static Pose ROBOT_POSE = new Pose(38.65, 32.34, Math.toRadians(90)); //BY DEFAULT IT IS IN THE RED SQUARE
+    public static Pose ROBOT_POSE = new Pose(38.65, 32.34, Math.toRadians(90)); //RED PARK ZONE
     @Sorter(sort=3)
     public static Pose PARK_POSE = new Pose(38.442, 32.795, Math.toRadians(90)); //RED PARK ZONE
     @Sorter(sort=4)

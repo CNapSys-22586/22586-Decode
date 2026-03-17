@@ -1,31 +1,24 @@
 package org.firstinspires.ftc.teamcode.cnapsys.subsystems.Turret;
-import static com.pedropathing.math.MathFunctions.clamp;
 
 import android.annotation.SuppressLint;
 
 import com.bylazar.telemetry.TelemetryManager;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.cnapsys.core.RobotConfig;
 import org.firstinspires.ftc.teamcode.cnapsys.core.interfaces.Subsystem;
 import org.firstinspires.ftc.teamcode.cnapsys.core.utils.PIDF;
-import org.firstinspires.ftc.teamcode.cnapsys.core.vars.Alliance;
 import org.firstinspires.ftc.teamcode.cnapsys.core.vars.SubsystemData;
-import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
-import org.firstinspires.ftc.vision.apriltag.AprilTagMetadata;
 
 public class Turret implements Subsystem {
 
     private final DcMotorEx motor;
     private final PIDF pidf = new PIDF(TurretConfig.kP, TurretConfig.kI, TurretConfig.kD, TurretConfig.kF);
-    private double currentAngleDeg, targetAngleDeg, ticksPerDeg;
-    private double targetX, targetY;
+    private double currentAngleDeg, turretWorldX, turretWorldY;
+    private double targetAngleDeg;
     private boolean enabled = true;
 
     public Turret(DcMotorEx motor, boolean reset) {
@@ -54,13 +47,21 @@ public class Turret implements Subsystem {
         motor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
+    public Pose getTurretWordPose() {
+        return new Pose(turretWorldX, turretWorldY, Math.toRadians(currentAngleDeg + TurretConfig.ROTATION_OFFSET));
+    }
+
     @Override
     public boolean isBusy() {
         return Math.abs(targetAngleDeg - currentAngleDeg) > TurretConfig.THRESHOLD;
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void update(double deltaTime, TelemetryManager tm, SubsystemData data) {
+        //GET TARGET POSE
+        double targetY;
+        double targetX;
         if (!RobotConfig.COMPENSATE_FOR_VELOCITY) {
             targetX = data.goalPose.getX();
             targetY = data.goalPose.getY();
@@ -69,42 +70,41 @@ public class Turret implements Subsystem {
             targetX = data.goalPoseAdjusted.getX();
             targetY = data.goalPoseAdjusted.getY();
         }
-        ticksPerDeg = (TurretConfig.TPR * TurretConfig.GEAR_RATIO) / 360.0;
+
+        //GET CURRENT HEADING
+        double ticksPerDeg = (TurretConfig.TPR * TurretConfig.GEAR_RATIO) / 360.0;
         pidf.setParams(TurretConfig.kP, TurretConfig.kI, TurretConfig.kD, TurretConfig.kF);
         currentAngleDeg = motor.getCurrentPosition() / ticksPerDeg;
 
+        //GET ROBOT COORDS
         double heading = data.follower.getPose().getHeading();
         double robotX   = data.follower.getPose().getX();
         double robotY   = data.follower.getPose().getY();
 
-        double turretWorldX = robotX + TurretConfig.MOUNT_OFFSET_X * Math.cos(heading) - TurretConfig.MOUNT_OFFSET_Y * Math.sin(heading);
-        double turretWorldY = robotY + TurretConfig.MOUNT_OFFSET_X * Math.sin(heading) + TurretConfig.MOUNT_OFFSET_Y * Math.cos(heading);
+        //GET TURRET COORDS
+        turretWorldX = robotX + TurretConfig.MOUNT_OFFSET_X * Math.cos(heading) - TurretConfig.MOUNT_OFFSET_Y * Math.sin(heading);
+        turretWorldY = robotY + TurretConfig.MOUNT_OFFSET_X * Math.sin(heading) + TurretConfig.MOUNT_OFFSET_Y * Math.cos(heading);
 
-// --- Now compute angle FROM the turret's actual position ---
+        //COMPUTE NEW HEADING
         double angleToTarget = Math.atan2(targetY - turretWorldY, targetX - turretWorldX);
 
         double robotRelativeAngle = -angleToTarget + heading;
         double turretMountOffset  = Math.toRadians(TurretConfig.ROTATION_OFFSET);
         targetAngleDeg = Math.toDegrees(robotRelativeAngle - turretMountOffset);
 
-//        double angleToTarget = Math.atan2(targetY - data.follower.getPose().getY(), targetX - data.follower.getPose().getX());
-//
-//        double robotRelativeAngle = -angleToTarget + data.follower.getPose().getHeading();
-//
-//        double turretMountOffset = Math.toRadians(TurretConfig.ROTATION_OFFSET);
-//
-//        targetAngleDeg = Math.toDegrees(robotRelativeAngle - turretMountOffset);
-
         if (!enabled) targetAngleDeg = -TurretConfig.ROTATION_OFFSET;
 
+        //WRAP AROUND LOGIC
         if(targetAngleDeg > 400) targetAngleDeg = targetAngleDeg - 360;
         if(targetAngleDeg < 0) targetAngleDeg = targetAngleDeg + 360;
+
         double error = targetAngleDeg - currentAngleDeg;
 
         double power = pidf.update(error);
 
         motor.setPower(power);
 
+        //DEBUG DATA
         if (TurretConfig.DEBUG_MODE) {
             tm.addData("Turret/Power", power);
             tm.addData("Turret/Error", error);

@@ -5,7 +5,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.cnapsys.subsystems.Intake.Intake;
 import org.firstinspires.ftc.teamcode.cnapsys.subsystems.Shooter.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+import java.util.List;
+
 public class Robot {
     public Pose goalPose;
     private boolean firstUpdate = false;
@@ -33,10 +35,6 @@ public class Robot {
     public final ElapsedTime timer;
     public final TelemetryManager tm;
 
-    public boolean isFirstUpdateComplete() {
-        return firstUpdate;
-    }
-
     public Robot(HardwareMap hwMap, Alliance alliance, boolean resetSystems) {
         if (alliance == Alliance.RED) goalPose = RobotConfig.GOAL_POSE.mirror();
         else  goalPose = RobotConfig.GOAL_POSE;
@@ -48,6 +46,11 @@ public class Robot {
         follower = Constants.createFollower(hwMap);
         follower.setPose(RobotConfig.ROBOT_POSE);
 
+        List<LynxModule> allHubs = hwMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
         timer = new ElapsedTime();
         tm = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -61,6 +64,10 @@ public class Robot {
         if (follower.getPose().getY() >= RobotConfig.TOP_Y_THRESHOLD) {shooter.setEngaged();}
         else if (follower.getPose().getY() <= RobotConfig.DOWN_Y_THRESHOLD && follower.getPose().getX() >= RobotConfig.DOWN_X_THRESHOLD_LEFT && follower.getPose().getX() <= RobotConfig.DOWN_X_THRESHOLD_RIGHT) {shooter.setEngaged();}
         else {shooter.setIdle();}
+    }
+
+    public boolean isShootingSystemBusy() {
+        return turret.isBusy() || shooter.isBusy();
     }
 
     public void update() {
@@ -81,7 +88,7 @@ public class Robot {
         intake.update(deltaTime, tm, data);
         turret.update(deltaTime, tm, data);
         blocker.update(deltaTime, tm, data);
-        Drawing.update(follower.getPose(), goalPose, data.goalPoseAdjusted, (!shooter.isBusy()));
+        Drawing.update(follower.getPose(), goalPose, data.goalPoseAdjusted, turret.getTurretWordPose(), isShootingSystemBusy());
         follower.update();
         firstUpdate = true;
     }

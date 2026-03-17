@@ -32,7 +32,7 @@ public class Shooter implements Subsystem {
         this.motorA.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         this.motorB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         this.hoodServo = hoodServo;
-        setHoodPosition(30);
+        setHoodPosition(ShooterConfig.HOOD_ANGLE_MIN);
         this.interpolator = new ShooterInterpolator(ShooterConfig.INTERPOLATION_POINTS);
     }
 
@@ -59,7 +59,6 @@ public class Shooter implements Subsystem {
     }
 
     private void setHoodPosition(double angle) {
-        if (Double.isNaN(angle)) return;
         hoodServo.setPosition(angle * ShooterConfig.GEAR_RATIO / 255 - 1.180);
     }
 
@@ -75,23 +74,33 @@ public class Shooter implements Subsystem {
 
     @Override
     public void update(double deltaTime, TelemetryManager tm, SubsystemData data) {
+
+        //GET TARGET DISTANCE
         if (RobotConfig.COMPENSATE_FOR_VELOCITY) distance = data.follower.getPose().distanceFrom(data.goalPoseAdjusted);
         else distance = data.follower.getPose().distanceFrom(data.goalPose);
+
+        //GET INTERPOLATED DATA
         ShooterPoint target = interpolator.interpolateData(distance);
         targetTPS = target.TPS;
+
         if (idle) targetTPS = ShooterConfig.IDLE_TPS;
+
         double power = pff.update(targetTPS, motorA.getVelocity());
+
+        //DEBUG TELEMETRY
         if (ShooterConfig.DEBUG_MODE) {
-            tm.addData("Enabled", enabled);
-            tm.addData("Idle", idle);
-            tm.addData("Power", power);
-            tm.addData("Target TPS", targetTPS);
-            tm.addData("TOF", getTOF());
-            tm.addData("Actual TPS", motorA.getVelocity());
-            tm.addData("hoodAngle", target.minHoodAngle);
+            tm.addData("Shooter/Enabled", enabled);
+            tm.addData("Shooter/isIdle", idle);
+            tm.addData("Shooter/Power", power);
+            tm.addData("Shooter/Target TPS", targetTPS);
+            tm.addData("Shooter/Error", targetTPS - motorA.getVelocity());
+            tm.addData("Shooter/TOF", getTOF());
+            tm.addData("Shooter/Current TPS", motorA.getVelocity());
+            tm.addData("Shooter/HoodAngle", target.minHoodAngle);
             interpolator.setShooterPoints(ShooterConfig.INTERPOLATION_POINTS);
             pff.setParams(ShooterConfig.KP, ShooterConfig.KV, ShooterConfig.KS);
         }
+
         if (enabled) {
             motorA.setPower(power);
             motorB.setPower(power);
