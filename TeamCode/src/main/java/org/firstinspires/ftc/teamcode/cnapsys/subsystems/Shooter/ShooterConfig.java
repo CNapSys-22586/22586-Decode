@@ -31,10 +31,6 @@ public class ShooterConfig {
     @Sorter(sort=10)
     public static double HOOD_COMPENSATION_AMOUNT = 0.012;
     @Sorter(sort=11)
-    public static boolean USE_LOWPASS_FILTER = false;
-    @Sorter(sort=12)
-    public static double LOWPASS_FILTER_ALPHA = 0.1;
-    @Sorter(sort=13)
     public static List<ShooterPoint> INTERPOLATION_POINTS = new ArrayList<>();
 
     static {
@@ -53,7 +49,7 @@ public class ShooterConfig {
         INTERPOLATION_POINTS.add(new ShooterPoint(33, 46.8, 1900, 150));
         INTERPOLATION_POINTS.add(new ShooterPoint(33, 46.8, 1900, 160));
     }
-    @Sorter(sort=14)
+    @Sorter(sort=12)
     public static boolean DEBUG_MODE = false;
 
 }
