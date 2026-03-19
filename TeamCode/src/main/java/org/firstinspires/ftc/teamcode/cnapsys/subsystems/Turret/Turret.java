@@ -20,6 +20,7 @@ public class Turret implements Subsystem {
     private double currentAngleDeg, turretWorldX, turretWorldY;
     private double targetAngleDeg;
     private boolean enabled = true;
+    private Pose turretWorldPos = new Pose(0, 0, 0);
 
     public Turret(DcMotorEx motor, boolean reset) {
         this.motor = motor;
@@ -48,7 +49,7 @@ public class Turret implements Subsystem {
     }
 
     public Pose getTurretWordPose() {
-        return new Pose(turretWorldX, turretWorldY, Math.toRadians(currentAngleDeg + TurretConfig.ROTATION_OFFSET));
+        return turretWorldPos;
     }
 
     @Override
@@ -84,6 +85,7 @@ public class Turret implements Subsystem {
         //GET TURRET COORDS
         turretWorldX = robotX + TurretConfig.MOUNT_OFFSET_X * Math.cos(heading) - TurretConfig.MOUNT_OFFSET_Y * Math.sin(heading);
         turretWorldY = robotY + TurretConfig.MOUNT_OFFSET_X * Math.sin(heading) + TurretConfig.MOUNT_OFFSET_Y * Math.cos(heading);
+        turretWorldPos = new Pose(turretWorldX, turretWorldY, -Math.toRadians(currentAngleDeg + TurretConfig.ROTATION_OFFSET) + heading);
 
         //COMPUTE NEW HEADING
         double angleToTarget = Math.atan2(targetY - turretWorldY, targetX - turretWorldX);
